@@ -1,5 +1,6 @@
 const JWT = require('jsonwebtoken');
 const userModel = require('../models/userModel');
+
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -10,13 +11,35 @@ const requireSignIn = async (req, res, next) => {
       process.env.JWT_SECRET
     );
 
-    req.user = await userModel.findById(decode.id);
+    req.user = await userModel.findById(decode._id);
     next();
+
   } catch(error) {
     console.log(error);
     res.status(500).send({
       success : false,
       message : "Internal Server Error",
+      error
+    })
+  }
+}
+
+const isRegular = async (req, res, next) => {
+  try{
+    const user = await userModel.findById(req.user._id);
+    if(user.role !== "regular"){
+      return res.status(401).send({
+        success : false,
+        message : "User Not Regular -> UnAuthorized Access"
+      })
+    } else {
+        next();
+    }
+  } catch(error) {
+    console.log(error);
+    res.status(500).send({
+      success : false,
+      message : "Error in Regular User Middleware  -> Internal Server Error",
       error
     })
   }
@@ -31,7 +54,7 @@ const isVerified = async (req, res, next) => {
         message : "User Not Verified -> UnAuthorized Access"
       })
     } else {
-      next();
+        next();
     }
   } catch(error) {
     console.log(error);
@@ -66,6 +89,8 @@ const isAdministrator = async (req, res, next) => {
 
 const isAdmin = async (req, res, next) => {
   try{
+    console.log(req.user)
+
     const user = await userModel.findById(req.user._id);
     if(user.role !== "admin"){
       return res.status(401).send({
@@ -87,7 +112,8 @@ const isAdmin = async (req, res, next) => {
 
 module.exports = {
   requireSignIn,
+  isRegular,
   isVerified,
   isAdministrator,
-  isAdmin
+  isAdmin,
 }
