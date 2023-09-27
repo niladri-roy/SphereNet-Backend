@@ -4,14 +4,56 @@ const {
   userRegister, 
   userLogin,
   forgotPassword,
-  addPostToUser
+  addPostToUser,
+  findUser,
+  deletePostFromUser
 } = require('../controllers/userAuthController');
+
+const { 
+  requireSignIn, 
+  isRegular,
+  isVerified,
+  isAdministrator,
+  isAdmin,
+} = require('../middlewares/authMiddleware');
+
 
 const router = express.Router();
 
 router.post('/register', userRegister);
 router.post('/login', userLogin);
-router.post('/forgot-password', forgotPassword);
-router.post('/:userId/add-post', addPostToUser);
+
+router.get('/user-auth' , requireSignIn , isRegular , (req , res) => {
+  res.status(200).send({
+    ok : true
+  })
+})
+
+router.get('/verified-user-auth' , requireSignIn , isVerified , (req , res) => {
+  res.status(200).send({
+    ok : true
+  })
+})
+
+router.get('/administrator-auth' , requireSignIn , isAdministrator , (req , res) => {
+  res.status(200).send({
+    ok : true
+  })
+})
+
+router.get('/admin-auth' , requireSignIn , isAdmin , (req , res) => {
+  res.status(200).send({
+    ok : true
+  })
+})
+
+router.get('/find-user/:userId', findUser);
+router.post('/forgot-password', requireSignIn, forgotPassword);
+
+
+//Post router for Users
+router.post('/:userId/add-post', requireSignIn, addPostToUser);
+router.put('/delete-post/:userId/:postId', deletePostFromUser)
+
 
 module.exports = router;
