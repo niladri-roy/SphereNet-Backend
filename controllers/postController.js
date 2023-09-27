@@ -324,11 +324,6 @@ module.exports = {
   updatePost,
   likePost,
   unlikePost,
-  commentOnPost,
-  deleteComment,
-  updateComment,
-  getAllCommentsOnPostById,
-  /* ........... */
   addCommentsToPostsById,
   getCommentsOnPostById,
   deleteCommentOnPostById,
