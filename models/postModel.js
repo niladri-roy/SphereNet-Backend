@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-
 const postSchema = new mongoose.Schema({
 
   author : {
@@ -15,7 +14,6 @@ const postSchema = new mongoose.Schema({
 
   content : {
     type : String,
-    default : "hi"
   },
 
   media : [
@@ -40,19 +38,10 @@ const postSchema = new mongoose.Schema({
 
   tags : [
     {
-      type : String,
+      type : mongoose.ObjectId,
+      ref : 'Tag'
     }
   ],
-
-  isPublished : {
-    type : Boolean,
-    default : true
-  },
-
-  publishedAt :{
-    type : Date,
-    default : Date.now()
-  }
 
 } , {timestamps : true} )
 
