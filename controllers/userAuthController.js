@@ -10,13 +10,13 @@ const JWT = require('jsonwebtoken');
 
 const userRegister = async (req, res) => {
   try{
-    const { firstName, username, email, password, uniqueAnswer } = req.body;
+    const { firstName, lastName, username, email, password, uniqueAnswer } = req.body;
     //Validation
-    if(!firstName){ return res.send({ error : "First Name is Required" }) };
-    if(!username){ return res.send({ error : "Username is Required" }) };
-    if(!email){ return res.send({ error : "Email is Required" }) };
-    if(!password){ return res.send({ error : "Password is Required" }) };
-    if(!uniqueAnswer){ return res.send({ error : "Unique Answer is Required" }) };
+    if(!firstName){ return res.status(200).send({ message : "First Name is Required" }) };
+    if(!username){ return res.status(200).send({ message : "Username is Required" }) };
+    if(!email){ return res.status(200).send({ message : "Email is Required" }) };
+    if(!password){ return res.status(200).send({ message : "Password is Required" }) };
+    if(!uniqueAnswer){ return res.status(200).send({ message : "Unique Answer is Required" }) };
 
     //Check if user already exists
     const existingUserEmail = await userModel.findOne({ email });
@@ -41,6 +41,7 @@ const userRegister = async (req, res) => {
     //Create User
     const user = await userModel.create({
       firstName,
+      lastName,
       username,
       email,
       password : hashedPassword,
@@ -65,7 +66,7 @@ const userRegister = async (req, res) => {
 
 const userLogin = async (req, res) => {
   try{
-    const { email, username, password } = req.body;
+    const { email , password } = req.body;
     //Validation
 
     if(!email){
@@ -102,7 +103,7 @@ const userLogin = async (req, res) => {
     }
 
     //Token
-    const token = await JWT.sign({ _id: user._id }, process.env.JWT_SECRET, {
+    const token = JWT.sign({ _id: user._id }, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });  
 
@@ -110,8 +111,9 @@ const userLogin = async (req, res) => {
       success : true,
       message : "User Logged In Successfully",
       user:{
-        id: user._id,
+        _id: user._id,
         firstName: user.firstName,
+        lastName : user.lastName,
         username: user.username,
         email: user.email,
         role: user.role,
@@ -220,9 +222,71 @@ const addPostToUser = async (req, res) => {
   }
 }
 
+
+const findUser = async (req, res) => {
+  try{
+    const { userId } = req.params;
+
+    const user = await userModel.findById(userId);
+    if(!user){
+      return res.status(400).send({
+        success : false,
+        message : "User Does Not Exist"
+      })
+    }
+
+    res.status(200).send({
+      success : true,
+      message : "User Found Successfully",
+      user
+    })
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success : false,
+      message : "Error in Finding User -> Internal Server Error",
+      error
+    })
+  }
+}
+
+const deletePostFromUser = async (req, res) => {
+  try{
+    const { userId , postId } = req.params;
+
+    const user = await userModel.findById(userId);
+    if(!user){
+      return res.status(404).json({
+        success : false,
+        message : "User Not Found"
+      })
+    }
+
+    user.posts.pull(postId)
+    await user.save();
+
+    res.status(200).json({
+      success : true,
+      message : "Post Deleted Successfully"
+    })
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success : false,
+      message : "Error in Deleting Post from User -> Internal Server Error",
+      error
+    })
+  }
+}
+
+
+
 module.exports = { 
   userRegister,
   userLogin,
   forgotPassword,
-  addPostToUser
+  addPostToUser,
+  findUser,
+  deletePostFromUser
 }
