@@ -30,9 +30,40 @@ const userSchema = new mongoose.Schema({
   location:{
     type: String,
   },
+  dateOfBirth :{
+    type: Date,
+  },
+  gender : {
+    type: String,
+  },
+  headline:{
+    type: String,
+    max: 255,
+  },
+  bio:{
+    type: String,
+    max: 255
+  },
+  profilePicture:{
+    type: String,
+  },
+  bannerPicture:{
+    type: String,
+  },
+  searchHistory:[
+    {
+      type: String
+    }
+  ],
 
   //Connections Information
   connections:[
+    {
+      type: mongoose.ObjectId,
+      ref: 'User'
+    }
+  ],
+  connectionRequests : [
     {
       type: mongoose.ObjectId,
       ref: 'User'
@@ -43,6 +74,42 @@ const userSchema = new mongoose.Schema({
       type: mongoose.ObjectId,
       ref: 'User'
     }
+  ],
+  following : [
+    {
+      type: mongoose.ObjectId,
+      ref: 'User'
+    }
+  ],
+  subscribed : [
+    {
+      type: mongoose.ObjectId,
+      ref: 'User'
+    }
+  ],
+  subscribers:[
+    {
+      type: mongoose.ObjectId,
+      ref: 'User'
+    }
+  ],
+  reputations : [
+    {
+      author : {
+        type : mongoose.ObjectId,
+        ref : 'User'
+      },
+      content : {
+        type : String,
+        required : true
+      },
+      likes : [
+        {
+          type : mongoose.ObjectId,
+          ref : 'User'
+        }
+      ],
+    }, {timestamps: true}
   ],
 
   //Social-Media Links
@@ -64,21 +131,6 @@ const userSchema = new mongoose.Schema({
     }
   ],
 
-  //Profile Information
-  headline:{
-    type: String,
-    max: 255,
-  },
-  bio:{
-    type: String,
-    max: 255
-  },
-  profilePicture:{
-    type: String,
-  },
-  bannerPicture:{
-    type: String,
-  },
 
   //Log Information
   username:{
@@ -105,16 +157,58 @@ const userSchema = new mongoose.Schema({
   //Experience
   experience:[
     {
-      type: mongoose.ObjectId,
-      ref: 'Experience'
+      title: { //Job Title
+        type: String,
+        required: true,
+      },
+      company: {
+        type: mongoose.ObjectId,
+        ref: 'Company',
+      },
+      location: {
+        type: String,
+      },
+      startDate: {
+        type: Date,
+        required: true,
+      },
+      endDate: {
+        type: Date,
+      },
+      description: {
+        type: String,
+      },
     }
   ],
 
   //Education
   education:[
     {
-      type: mongoose.ObjectId,
-      ref: 'Education'
+      institution: {
+        type: String,
+        required: true,
+      },
+      degree: {
+        type: String,
+        required: true,
+      },
+      fieldOfStudy: {
+        type: String,
+        required: true,
+      },
+      startDate: {
+        type: Date,
+        required: true,
+      },
+      endDate: {
+        type: Date,
+      },
+      grade: {
+        type: String,
+      },
+      description: {
+        type: String,
+      },
     }
   ],
 
@@ -129,8 +223,21 @@ const userSchema = new mongoose.Schema({
   //Certification
   certification:[
     {
-      type: mongoose.ObjectId,
-      ref: 'Certification'
+      title : {
+        type: String,
+        required: true,
+      },
+      organization : {
+        type: String,
+        required: true,
+      },
+      dateEarned : {
+        type: Date,
+        required: true,
+      },
+      description : {
+        type: String,
+      },
     }
   ],
 
@@ -178,6 +285,14 @@ const userSchema = new mongoose.Schema({
     }
   ],
 
+  //Newsletter
+  newsletter:[
+    {
+      type: mongoose.ObjectId,
+      ref: 'Newsletter'
+    }
+  ],
+
   //Gallery
   gallery:[
     {
@@ -186,14 +301,14 @@ const userSchema = new mongoose.Schema({
     }
   ],
 
-  profileCreated:{  
-    type: Date,
-    default: Date.now
-  }
+  notifications:[
+    {
+      type: mongoose.ObjectId,
+      ref: 'Notification'
+    }
+  ],
 
-})
-
-
+},{timestamps: true})
 
 console.log("User Model -> Working Successfully")
 module.exports = mongoose.model('User', userSchema);
