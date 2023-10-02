@@ -66,10 +66,10 @@ const isVerified = async (req, res, next) => {
   }
 }
 
-const isAdministrator = async (req, res, next) => {
+const isModerator = async (req, res, next) => {
   try{
     const user = await userModel.findById(req.user._id);
-    if(user.role !== "administrator"){
+    if(user.role !== "moderator"){
       return res.status(401).send({
         success : false,
         message : "User Not Administrator -> UnAuthorized Access"
@@ -114,6 +114,6 @@ module.exports = {
   requireSignIn,
   isRegular,
   isVerified,
-  isAdministrator,
+  isModerator,
   isAdmin,
 }

@@ -13,7 +13,7 @@ const {
   requireSignIn, 
   isRegular,
   isVerified,
-  isAdministrator,
+  isModerator,
   isAdmin,
 } = require('../middlewares/authMiddleware');
 
@@ -35,7 +35,7 @@ router.get('/verified-user-auth' , requireSignIn , isVerified , (req , res) => {
   })
 })
 
-router.get('/administrator-auth' , requireSignIn , isAdministrator , (req , res) => {
+router.get('/moderator-auth' , requireSignIn , isModerator , (req , res) => {
   res.status(200).send({
     ok : true
   })

@@ -4,7 +4,7 @@ const userSchema = new mongoose.Schema({
 
   role:{
     type: String,
-    enum: ['regular', 'verified', 'administrator', 'admin'],
+    enum: ['regular', 'verified', 'moderator', 'admin'],
     default: 'regular'
   },
   
@@ -19,9 +19,6 @@ const userSchema = new mongoose.Schema({
     max: 255
   },
   phone:{
-    type: String,
-  },
-  address:{
     type: String,
   },
   website:{
@@ -157,58 +154,16 @@ const userSchema = new mongoose.Schema({
   //Experience
   experience:[
     {
-      title: { //Job Title
-        type: String,
-        required: true,
-      },
-      company: {
-        type: mongoose.ObjectId,
-        ref: 'Company',
-      },
-      location: {
-        type: String,
-      },
-      startDate: {
-        type: Date,
-        required: true,
-      },
-      endDate: {
-        type: Date,
-      },
-      description: {
-        type: String,
-      },
+      type : mongoose.ObjectId,
+      ref : 'Experience'
     }
   ],
 
   //Education
   education:[
     {
-      institution: {
-        type: String,
-        required: true,
-      },
-      degree: {
-        type: String,
-        required: true,
-      },
-      fieldOfStudy: {
-        type: String,
-        required: true,
-      },
-      startDate: {
-        type: Date,
-        required: true,
-      },
-      endDate: {
-        type: Date,
-      },
-      grade: {
-        type: String,
-      },
-      description: {
-        type: String,
-      },
+      type : mongoose.ObjectId,
+      ref : 'Education'
     }
   ],
 
@@ -216,28 +171,15 @@ const userSchema = new mongoose.Schema({
   skills:[
     {
       type: mongoose.ObjectId,
-      ref: 'Skill'
+      ref: 'Skills'
     }
   ],
 
   //Certification
   certification:[
     {
-      title : {
-        type: String,
-        required: true,
-      },
-      organization : {
-        type: String,
-        required: true,
-      },
-      dateEarned : {
-        type: Date,
-        required: true,
-      },
-      description : {
-        type: String,
-      },
+      type: mongoose.ObjectId,
+      ref: 'Certification'
     }
   ],
 

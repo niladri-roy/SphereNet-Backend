@@ -2,14 +2,17 @@ const express = require('express');
 const dotenv = require('dotenv');
 const connectDB = require('./config/database');
 
-
 const authRoutes = require('./routes/authRoutes');
 const postRoutes = require('./routes/postRoutes');
 const tagRoutes = require('./routes/tagRoutes');
 const commentRoute = require('./routes/commentRoute');
+const experienceRoute = require('./routes/experienceRoute');
+const educationRoute = require('./routes/educationRoute');
 
 const userRoutes = require('./routes/User Routes/userRoute');
 const userRoleRoutes = require('./routes/User Routes/userRoleRoute');
+const userEducationController = require('./routes/User Routes/userEducationRoute');
+const userExperienceController = require('./routes/User Routes/userExperienceRoute');
 
 const cors = require('cors');
 
@@ -29,6 +32,12 @@ app.use('/v1/api/users/role', userRoleRoutes);
 app.use('/v1/api/tags', tagRoutes);
 
 app.use('/v1/api/comments', commentRoute);
+
+app.use('/v1/api/experiences', experienceRoute);
+app.use('/v1/api/educations', educationRoute);
+
+app.use('/v1/api/users/educations', userEducationController);
+app.use('/v1/api/users/experiences', userExperienceController);
 
 
 app.get('/', (req, res) => {

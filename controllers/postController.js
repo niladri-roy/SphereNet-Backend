@@ -300,7 +300,7 @@ const deleteCommentOnPostById = async(req , res)=> {
 
     res.status(200).send({
       success : true,
-      message : "Comment Deleted Successfully",
+      message : "Comment Deleted Successfully from Post",
       post
     })
 
