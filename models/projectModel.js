@@ -10,8 +10,6 @@ const projectSchema = new mongoose.Schema({
   solution
   challenges
   results
-  links
-  Media
   likes
   tags
   comments
@@ -23,7 +21,6 @@ const projectSchema = new mongoose.Schema({
   },
   title : {
     type : String,
-    required : true
   },
   headline : {
     type : String,
@@ -43,16 +40,11 @@ const projectSchema = new mongoose.Schema({
   results : {
     type : String,
   },
-  links : [
-    {
-      type : String
-    }
-  ],
-  media : [
-    {
-      type : String
-    }
-  ],
+  // links : [
+  //   {
+  //     type : String
+  //   }
+  // ],
   likes : [
     {
       type : mongoose.ObjectId,

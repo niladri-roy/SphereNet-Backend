@@ -4,19 +4,16 @@ const userModel = require("../models/userModel");
 /* 
 Blog Model ->
   author
-  bannerPicture
   title
-  headline
   content
-  Media
   likes
   tags
   comments
 */
 
-const createBlog = async (req, res) => {
+const createBlogs = async (req, res) => {
   try{
-    const { author , title , content } = req.body;
+    const { author , title , content , headline , tags } = req.body;
     const user = await userModel.findById(author);
 
     if(!user){
@@ -29,7 +26,9 @@ const createBlog = async (req, res) => {
     const newBlog = new blogModel({
       author,
       title,
-      content
+      content,
+      headline,
+      tags,
     })
 
     await newBlog.save();
@@ -73,14 +72,12 @@ const getAllBlogs = async (req , res) => {
   }
 }
 
-const getBlogById = async (req, res) => {
+const getBlogsById = async (req, res) => {
   try{
-    const { postId } = req.params;
-    const blog = await blogModel
-      .findById(postId)
-      .populate('author');
+    const { blogId } = req.params;
+    const blog = await blogModel.findById(blogId).populate('author');
     
-    if(!post){
+    if(!blog){
       return res.status(400).send({
         success : false,
         message : "Blog Not Found"
@@ -103,7 +100,7 @@ const getBlogById = async (req, res) => {
   }
 }
 
-const deleteBlog = async (req, res) => {
+const deleteBlogs = async (req, res) => {
   try{
     const { blogId } = req.params;
     const blog = await blogModel.findById(blogId);
@@ -132,10 +129,10 @@ const deleteBlog = async (req, res) => {
   }
 }
 
-const updateBlog = async (req, res) => {
+const updateBlogs = async (req, res) => {
   try{
     const { blogId } = req.params;
-    const { title , content } = req.body;
+    const { title , content , tags } = req.body;
 
     const blog = await blogModel.findById(blogId);
 
@@ -148,7 +145,8 @@ const updateBlog = async (req, res) => {
 
     await blogModel.findByIdAndUpdate(blogId , {
       title,
-      content
+      content,
+      tags
     }, { new : true })
 
     const updatedBlog = await blogModel.findById(blogId).populate('author');
@@ -169,7 +167,7 @@ const updateBlog = async (req, res) => {
   }
 }
 
-const likeBlog = async (req, res) => {
+const likeBlogs = async (req, res) => {
   try {
     const { blogId } = req.params;
     const { userId } = req.body;
@@ -183,7 +181,7 @@ const likeBlog = async (req, res) => {
       })
     }
 
-    if(post.likes.includes(blogId)){
+    if(blog.likes.includes(blogId)){
       return res.status(400).send({
         success : false,
         message : "Blog Already Liked"
@@ -208,7 +206,7 @@ const likeBlog = async (req, res) => {
   }
 }
 
-const disLikeBlog = async (req, res) => {
+const disLikeBlogs = async (req, res) => {
   try{
     const { blogId } = req.params;
     const { userId } = req.body;
@@ -248,13 +246,12 @@ const disLikeBlog = async (req, res) => {
   }
 }
 
-const commentOnBlog = async (req , res) => {
+const addCommentsToBlogsById = async (req, res) => {
   try{
     const { blogId } = req.params;
-    const { userId , content } = req.body;
+    const { commentId } = req.body;
 
     const blog = await blogModel.findById(blogId);
-
     if(!blog){
       return res.status(400).send({
         success : false,
@@ -262,122 +259,30 @@ const commentOnBlog = async (req , res) => {
       })
     }
 
-    const comment = {
-      author : userId,
-      content
-    }
-
-    blog.comments.push(comment);
+    blog.comments.push(commentId);
     await blog.save();
 
     res.status(200).send({
       success : true,
-      message : "Commented on Blog Successfully",
+      message : "Comment Added to Blog Successfully",
       blog
     })
 
   } catch (error) {
     console.log(error);
     res.status(500).send({
-      success: false,
-      message: "Error in Commenting on Blog -> Internal Server Error",
-      error
-    })
-  }
-}
-
-const deleteComment = async (req , res) => {
-  try{
-    const { blogId , commentId } = req.params;
-    const blog = await blogModel.findById(blogId);
-
-    if(!blog){
-      return res.status(400).send({
-        success : false,
-        message : "Blog Not Found"
-      })
-    }
-
-    const commentIndex = blog.comments.findIndex(
-      comment => comment._id.toString() === commentId
-    )
-
-    if(commentIndex === -1){
-      return res.status(400).send({
-        success : false,
-        message : "Comment Not Found"
-      })
-    }
-
-    blog.comments.splice(commentIndex , 1);
-    await blog.save();
-
-    res.status(200).send({
-      success : true,
-      message : "Comment Deleted Successfully",
-      blog
-    })
-
-  } catch (error) {
-    console.error(error);
-    res.status(500).send({
       success : false,
-      message : "Internal Server Error",
+      message : "Error in Adding Comments to Blogs -> Internal Server Error",
       error
     })
   }
 }
 
-const updateComment = async (req , res) => {
-  try{
-    const { blogId , commentId } = req.params;
-    const { content } = req.body;
-
-    const blog = await blogModel.findById(blogId);
-
-    if(!blog){
-      return res.status(400).send({
-        success : false,
-        message : "Blog Not Found"
-      })
-    }
-
-    const commentIndex = blog.comments.findIndex(
-      comment => comment._id.toString() === commentId
-    )
-
-    if(commentIndex === -1){
-      return res.status(400).send({
-        success : false,
-        message : "Comment Not Found"
-      })
-    }
-
-    blog.comments[commentIndex].content = content;
-    await blog.save();
-
-    res.status(200).send({
-      success : true,
-      message : "Comment Updated Successfully",
-      blog
-    })
-
-  } catch (error) {
-    console.error(error);
-    res.status(500).send({
-      success : false,
-      message : "Internal Server Error",
-      error
-    })
-  }
-}
-
-const getAllCommentsOnBlogById = async (req , res) => {
+const getCommentsOnBlogsById = async (req, res) => {
   try{
     const { blogId } = req.params;
-    const blog = await blogModel
-      .findById(blogId)
-      .populate('comments.author');
+
+    const blog = await blogModel.findById(blogId);
 
     if(!blog){
       return res.status(400).send({
@@ -393,26 +298,65 @@ const getAllCommentsOnBlogById = async (req , res) => {
     })
 
   } catch (error) {
-    console.error(error);
+    console.log(error);
     res.status(500).send({
       success : false,
-      message : "Internal Server Error",
+      message : "Error in Getting Comments on Blog -> Internal Server Error",
       error
     })
   }
 }
 
-module.exports = {
-  createBlog,
-  getAllBlogs,
-  getBlogById,
-  deleteBlog,
-  updateBlog,
-  likeBlog,
-  disLikeBlog,
-  commentOnBlog,
-  deleteComment,
-  updateComment,
-  getAllCommentsOnBlogById,
+const deleteCommentsFromBlogsById = async (req, res) => {
+  try{
+    const { blogId } = req.params;
+    const { commentId } = req.body;
 
+    const blog = await blogModel.findById(blogId);
+    if(!blog){
+      return res.status(400).send({
+        success : false,
+        message : "Blog Not Found"
+      })
+    }
+
+    const commentIndex = blog.comments.indexOf(commentId);
+    if(commentIndex === -1){
+      return res.status(400).send({
+        success : false,
+        message : "Comment Not Found"
+      })
+    }
+
+    blog.comments.splice(commentIndex, 1);
+    await blog.save();
+
+    res.status(200).send({
+      success : true,
+      message : "Comment Deleted Successfully",
+      blog
+    })
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success : false,
+      message : "Error in Deleting Comments from Blogs -> Internal Server Error",
+      error
+    })
+  }
+}
+
+
+module.exports = {
+  createBlogs,
+  getAllBlogs,
+  getBlogsById,
+  deleteBlogs,
+  updateBlogs,
+  likeBlogs,
+  disLikeBlogs,
+  addCommentsToBlogsById,
+  getCommentsOnBlogsById,
+  deleteCommentsFromBlogsById
 }

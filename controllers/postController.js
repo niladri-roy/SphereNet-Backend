@@ -4,7 +4,7 @@ const userModel = require('../models/userModel');
 
 const createPost = async (req, res) => {
   try {
-    const { author , title , content , tags } = req.body;
+    const { author , content , tags } = req.body;
     const user = await userModel.findById(author);
 
     if(!user){
@@ -16,7 +16,6 @@ const createPost = async (req, res) => {
 
     const newPost = new postModel({
       author,
-      title,
       content,
       tags,
     })
@@ -128,11 +127,10 @@ const updatePost = async (req , res) => {
   try{
     const { postId } = req.params;
 
-    const { title , content } = req.body;
+    const { content } = req.body;
     const post = await postModel.findByIdAndUpdate(
       postId , 
       {
-        title,
         content,
       } , { new : true }
   );

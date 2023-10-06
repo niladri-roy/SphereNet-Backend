@@ -7,11 +7,6 @@ const postSchema = new mongoose.Schema({
     required : true
   },
 
-  title : {
-    type : String,
-    required : true
-  },
-
   content : {
     type : String,
   },
@@ -21,7 +16,7 @@ const postSchema = new mongoose.Schema({
       type : String
     }
   ],
-
+  
   likes : [
     {
       type : mongoose.ObjectId,

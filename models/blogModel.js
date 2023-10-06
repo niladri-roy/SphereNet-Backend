@@ -16,31 +16,35 @@ const blogSchema = new mongoose.Schema({
     type : mongoose.ObjectId,
     ref : 'User',
   },
-  bannerPicture : {
-    type : String,
-  },
   title :{
     type : String,
-    required : true
   },
   headline : {
     type : String,
   },
   content : {
     type : String,
-    required : true
   },
-  media : [
-    {
-      type : String,
-    }
-  ],
   likes : [
     {
       type : mongoose.ObjectId,
       ref : 'User'
     }
   ],
+  upVote : [
+    {
+      type : mongoose.ObjectId,
+      ref : 'User'
+    }
+  ],
+
+  downVote : [
+    {
+      type : mongoose.ObjectId,
+      ref : 'User'
+    }
+  ],
+
   tags : [
     {
       type : mongoose.ObjectId,
@@ -49,24 +53,12 @@ const blogSchema = new mongoose.Schema({
   ],
   comments : [
     {
-      author : {
-        type : mongoose.ObjectId,
-        ref : 'User'
-      },
-      content : {
-        type : String,
-        required : true
-      },
-      likes : [
-        {
-          type : mongoose.ObjectId,
-          ref : 'User'
-        }
-      ]
-    } , {timestamps : true}
+      type : mongoose.ObjectId,
+      ref : 'Comment'
+    }
   ],
 
-});
+} , { timestamps : true });
 
 const blogModel = mongoose.model('Blog' , blogSchema);
 module.exports = blogModel;

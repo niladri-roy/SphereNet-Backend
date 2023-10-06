@@ -1,5 +1,25 @@
 const userModel = require('../../models/userModel');
 
+const getAllUsers = async (req , res) => {
+  try{
+    const users = await userModel.find({});
+
+    res.status(200).send({
+      success : true,
+      message : "Users Fetched Successfully",
+      users
+    })
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({
+      success : false,
+      message : "Error in Getting Users -> Internal Server Error"
+    })
+  }
+}
+
+
 const getUsersById = async (req , res) => {
   try{
     const { userId } = req.params;
@@ -84,6 +104,7 @@ const updateUsersById = async (req, res) => {
 
 
 module.exports = {
+  getAllUsers,
   getUsersById,
   updateUsersById
 };

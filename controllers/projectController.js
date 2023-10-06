@@ -1,25 +1,23 @@
 const projectModel = require('../models/projectModel');
 const userModel = require('../models/userModel');
 
-/* 
-  create project -> 
-  get all projects -> 
-  get project by id ->
-  delete project -> 
-  update project ->
-  like project ->
-  dislike project ->
-  comment on project ->
-  delete comment on project ->
-  update comment on project ->
-  get all comments on project ->
-  like comments on project ->
-  dislike comments on project ->
+/*
+  author
+  title
+  headline
+  problem statement
+  content
+  solution
+  challenges
+  results
+  likes
+  tags
+  comments
 */
 
-const createProject = async (req, res) => {
+const createProjects = async (req, res) => {
   try {
-    const { author, title, content} = req.body;
+    const { author, title, headline , problemStatement , content , solution , challenges , results , tags } = req.body;
     const user = await userModel.findById(author);
 
     if (!user) {
@@ -32,7 +30,13 @@ const createProject = async (req, res) => {
     const newProject = new projectModel({
       author,
       title,
+      headline,
+      problemStatement,
       content,
+      solution,
+      challenges,
+      results,
+      tags,
     })
 
     await newProject.save();
@@ -77,7 +81,7 @@ const getAllProjects = async (req, res) => {
   }
 }
 
-const getProjectById = async (req, res) => {
+const getProjectsById = async (req, res) => {
   try {
     const { projectId } = req.params;
     const project = await projectModel
@@ -107,7 +111,7 @@ const getProjectById = async (req, res) => {
   }
 }
 
-const deleteProject = async (req, res) => {
+const deleteProjects = async (req, res) => {
   try{
     const { projectId } = req.params;
     const project = await projectModel.findById(projectId);
@@ -136,10 +140,10 @@ const deleteProject = async (req, res) => {
   }
 }
 
-const updateProject = async (req, res) => {
+const updateProjects = async (req, res) => {
   try{
     const { projectId } = req.params;
-    const { title, content } = req.body;
+    const { title, content , headline , problemStatement , solution , challenges , results , tags } = req.body;
 
     const project = await projectModel.findById(projectId)
     if(!project){
@@ -151,7 +155,13 @@ const updateProject = async (req, res) => {
 
     await projectModel.findByIdAndUpdate(projectId, {
       title,
-      content
+      content,
+      headline,
+      problemStatement,
+      solution,
+      challenges,
+      results,
+      tags
     }, { new : true })
 
     res.status(200).send({
@@ -170,7 +180,7 @@ const updateProject = async (req, res) => {
   }
 }
 
-const likeProject = async (req, res) => {
+const likeProjects = async (req, res) => {
   try {
     const { projectId } = req.params;
     const { userId } = req.body;
@@ -217,7 +227,7 @@ const likeProject = async (req, res) => {
   }
 }
 
-const dislikeProject = async (req, res) => {
+const dislikeProjects = async (req, res) => {
   try {
     const { projectId } = req.params;
     const { userId } = req.body;
@@ -265,10 +275,10 @@ const dislikeProject = async (req, res) => {
   }
 }
 
-const commentOnProject = async (req, res) => {
-  try {
+const addCommentsToProjectsById = async (req, res) => {
+  try{
     const { projectId } = req.params;
-    const { userId, content } = req.body;
+    const { commentId } = req.body;
 
     const project = await projectModel.findById(projectId);
     if(!project){
@@ -278,41 +288,28 @@ const commentOnProject = async (req, res) => {
       })
     }
 
-    const user = await userModel.findById(userId);
-    if(!user){
-      return res.status(400).send({
-        success : false,
-        message : "User Not Found"
-      })
-    }
-
-    const newComment = {
-      author : userId,
-      content
-    }
-
-    project.comments.push(newComment);
+    project.comments.push(commentId);
     await project.save();
 
     res.status(200).send({
       success : true,
-      message : "Commented on Project Successfully",
+      message : "Comment Added Successfully",
       project
     })
-
-  } catch (error) {
+  } catch (error){
     console.log(error);
     res.status(500).send({
       success: false,
-      message: "Error in Commenting on Project -> Internal Server Error",
+      message: "Error in Adding Comment -> Internal Server Error",
       error
     })
   }
 }
 
-const deleteCommentOnProject = async (req, res) => {
-  try {
-    const { projectId, commentId } = req.params;
+const getCommentsOnProjectsById = async (req, res) => {
+  try{
+    const { projectId } = req.params;
+
     const project = await projectModel.findById(projectId);
     if(!project){
       return res.status(400).send({
@@ -321,10 +318,35 @@ const deleteCommentOnProject = async (req, res) => {
       })
     }
 
-    const commentIndex = project.comments.findIndex(
-      comment => comment._id.toString() === commentId
-    );
+    res.status(200).send({
+      success : true,
+      message : "Comments Fetched Successfully",
+      comments : project.comments
+    })
+  } catch (error){
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Error in Getting Comments -> Internal Server Error",
+      error
+    })
+  }
+}
 
+const deleteCommentsOnProjectsById = async (req, res) => {
+  try{
+    const { projectId } = req.params;
+    const { commentId } = req.body;
+
+    const project = await projectModel.findById(projectId);
+    if(!project){
+      return res.status(400).send({
+        success : false,
+        message : "Project Not Found"
+      })
+    }
+
+    const commentIndex = project.comments.indexOf(commentId);
     if(commentIndex === -1){
       return res.status(400).send({
         success : false,
@@ -340,98 +362,26 @@ const deleteCommentOnProject = async (req, res) => {
       message : "Comment Deleted Successfully",
       project
     })
-
-  } catch (error) {
+  } catch (error){
     console.log(error);
     res.status(500).send({
       success: false,
-      message: "Error in Deleting Comment on Project -> Internal Server Error",
+      message: "Error in Deleting Comment -> Internal Server Error",
       error
     })
   }
 }
 
-const updateCommentOnProject = async (req, res) => {
-  try {
-    const { projectId, commentId } = req.params;
-    const { content } = req.body;
-
-    const project = await projectModel.findById(projectId);
-    if(!project){
-      return res.status(400).send({
-        success : false,
-        message : "Project Not Found"
-      })
-    }
-
-    const commentIndex = project.comments.findIndex(
-      comment => comment._id.toString() === commentId
-    );
-
-    if(commentIndex === -1){
-      return res.status(400).send({
-        success : false,
-        message : "Comment Not Found"
-      })
-    }
-
-    project.comments[commentIndex].content = content;
-    await project.save();
-
-    res.status(200).send({
-      success : true,
-      message : "Comment Updated Successfully",
-      project
-    })
-
-  } catch (error) {
-    console.log(error);
-    res.status(500).send({
-      success: false,
-      message: "Error in Updating Comment on Project -> Internal Server Error",
-      error
-    })
-  }
-}
-
-const getAllCommentsOnProject = async (req, res) => {
-  try{
-    const { projectId } = req.params;
-    const project = await projectModel.findById(projectId);
-    if(!project){
-      return res.status(400).send({
-        success : false,
-        message : "Project Not Found"
-      })
-    }
-
-    res.status(200).send({
-      success : true,
-      message : "All Comments on Project Fetched Successfully",
-      comments : project.comments
-    })
-
-  } catch (error) {
-    console.log(error);
-    res.status(500).send({
-      success: false,
-      message: "Error in Getting All Comments on Project -> Internal Server Error",
-      error
-    })
-  }
-}
 
 module.exports = {
-  createProject,
+  createProjects,
   getAllProjects,
-  getProjectById,
-  deleteProject,
-  updateProject,
-  likeProject,
-  dislikeProject,
-  commentOnProject,
-  deleteCommentOnProject,
-  updateCommentOnProject,
-  getAllCommentsOnProject
-  
+  getProjectsById,
+  deleteProjects,
+  updateProjects,
+  likeProjects,
+  dislikeProjects,
+  addCommentsToProjectsById,
+  getCommentsOnProjectsById,
+  deleteCommentsOnProjectsById  
 }
